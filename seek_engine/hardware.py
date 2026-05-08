@@ -3,6 +3,7 @@ import serial.tools.list_ports
 import threading
 import time
 
+
 class SerialManager:
     def __init__(self, log_callback):
         self.port = None
@@ -30,8 +31,10 @@ class SerialManager:
         while self.is_connected and self.port and self.port.is_open:
             try:
                 if self.port.in_waiting:
-                    text = self.port.read(self.port.in_waiting).decode('ascii', errors='replace')
-                    self.log_callback(" [SEM] " + text.replace('\n', ''))
+                    text = self.port.read(self.port.in_waiting).decode(
+                        "ascii", errors="replace"
+                    )
+                    self.log_callback(" [SEM] " + text.replace("\n", ""))
             except Exception:
                 break
             time.sleep(0.05)
