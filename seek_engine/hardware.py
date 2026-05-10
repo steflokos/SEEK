@@ -28,13 +28,23 @@ class SerialManager:
             self.port.write(data)
 
     def _read_loop(self):
+        buffer = ""
         while self.is_connected and self.port and self.port.is_open:
             try:
                 if self.port.in_waiting:
                     text = self.port.read(self.port.in_waiting).decode(
                         "ascii", errors="replace"
                     )
-                    self.log_callback(" [SEM] " + text.replace("\n", ""))
+                    buffer += text
+
+                    # Process the buffer line by line
+                    while "\n" in buffer:
+                        line, buffer = buffer.split("\n", 1)
+                        # Clean up any lingering carriage returns and whitespace
+                        clean_line = line.replace("\r", "").strip()
+
+                        if clean_line:  # Only log non-empty lines
+                            self.log_callback(" [SEM] " + clean_line)
             except Exception:
                 break
             time.sleep(0.05)
