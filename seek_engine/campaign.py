@@ -18,6 +18,7 @@ class CampaignEngine:
         self.delay = 1.5
         self.endline = "\r\n"
 
+    # --- Batch Engine ---
     def start_batch(self, targets, delay, send_o, endline):
         self.active = True
         self.endline = endline
@@ -26,9 +27,9 @@ class CampaignEngine:
         ).start()
 
     def abort(self):
+        """Aborts a running Batch campaign."""
         self.active = False
-        self.discovery_active = False
-        self.log("\n[System] Abort signal sent...")
+        self.log("\n[System] Batch Abort signal sent...")
 
     def _batch_thread(self, targets, delay, send_o):
         self.log(f"\n--- BATCH STARTED: {len(targets)} faults ---")
@@ -61,6 +62,15 @@ class CampaignEngine:
         self.discovery_idx = 0
         self.log("\n--- DISCOVERY MODE STARTED ---")
         self._disc_inject()
+
+    def stop_discovery(self):
+        """Cleanly stops an active Discovery session and scrubs the hardware."""
+        if self.discovery_active:
+            self.discovery_active = False
+            self.log("\n[System] Discovery stopped by user. Sending final Scrub (O)...")
+            if self.serial.is_connected:
+                self.serial.write(("O" + self.endline).encode("ascii"))
+            self.on_complete()
 
     def _disc_inject(self):
         if self.discovery_idx >= len(self.discovery_targets):
