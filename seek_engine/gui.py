@@ -504,7 +504,10 @@ class SEMHybridEngineApp:
             style="Primary.TButton",
             command=self._send_manual,
             width=10,
-        ).pack(side=tk.RIGHT, padx=(10, 0))
+        ).pack(side=tk.RIGHT, padx=(5, 0))
+        ttk.Button(tx_frame, text="Clear", command=self._clear_terminal, width=8).pack(
+            side=tk.RIGHT, padx=(10, 0)
+        )
 
         term_border = tk.Frame(term_frame, bg=self.border_color, bd=1)
         term_border.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -594,6 +597,12 @@ class SEMHybridEngineApp:
     def _clear_editor(self):
         self.target_text.delete("1.0", tk.END)
         self._update_line_numbers()
+
+    def _clear_terminal(self):
+        """Wipes the Live SEM Terminal display."""
+        self.terminal.configure(state=tk.NORMAL)
+        self.terminal.delete("1.0", tk.END)
+        self.terminal.configure(state=tk.DISABLED)
 
     def _load_targets(self):
         path = filedialog.askopenfilename(
