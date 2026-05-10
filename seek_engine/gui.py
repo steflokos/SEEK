@@ -16,13 +16,13 @@ class SEMHybridEngineApp:
         self.root.geometry("1150x800")
         self.root.minsize(1000, 700)
 
-        self.bg_main = "#1E1E1E"
-        self.bg_card = "#252526"
-        self.bg_inset = "#3C3C3C"
-        self.text_main = "#CCCCCC"
-        self.text_heading = "#FFFFFF"
-        self.text_muted = "#858585"
-        self.border_color = "#3E3E42"
+        self.bg_main = "#1E2128"
+        self.bg_card = "#282C34"
+        self.bg_inset = "#323641"
+        self.text_main = "#ABB2BF"
+        self.text_heading = "#E5E9F0"
+        self.text_muted = "#9CA3AF"
+        self.border_color = "#3E4451"
 
         self.root.configure(bg=self.bg_main)
 
@@ -44,16 +44,16 @@ class SEMHybridEngineApp:
         style = ttk.Style()
         style.theme_use("clam")
 
-        primary = "#0E639C"
-        primary_hover = "#1177BB"
-        success = "#107C10"
-        success_hover = "#128C12"
-        danger = "#D13438"
-        danger_hover = "#E3383D"
-        tertiary = "#397a7b"
-        tertiary_hover = "#2c5f5f"
-        btn_bg = "#333333"
-        btn_hover = "#404040"
+        primary = "#4D78CC"  
+        primary_hover = "#618DE0"
+        success = "#5C9E5C"  
+        success_hover = "#6FB26F"
+        danger = "#CC5B60" 
+        danger_hover = "#E06D72"
+        tertiary = "#4C99A0"  
+        tertiary_hover = "#5EADB4"
+        btn_bg = "#3A3F4B"
+        btn_hover = "#4C525D"
 
         style.configure(
             ".",
@@ -227,7 +227,7 @@ class SEMHybridEngineApp:
         left_frame = ttk.Frame(main_pane, width=480)
         main_pane.add(left_frame, weight=0)
 
-        # --- 1. Target Manager (Hybrid) ---
+        # --- Target Manager (Hybrid) ---
         map_frame = ttk.LabelFrame(
             left_frame, text="1. Target Manager (Map or Load)", padding=15
         )
@@ -261,7 +261,14 @@ class SEMHybridEngineApp:
         param_f1 = ttk.Frame(map_frame, style="Card.TFrame")
         param_f1.grid(row=2, column=0, columnspan=3, sticky="ew", pady=(10, 5))
 
-        # 1. Architecture Field
+        # IP Field
+        ttk.Label(param_f1, text="IP:", style="Card.TLabel").pack(side=tk.LEFT)
+        self.target_ip_var = tk.StringVar(value="design_1_i/c_addsub_0")
+        ttk.Entry(param_f1, textvariable=self.target_ip_var, width=15).pack(
+            side=tk.LEFT, padx=(5, 10)
+        )
+
+        # Architecture Field
         ttk.Label(param_f1, text="Arch:", style="Card.TLabel").pack(side=tk.LEFT)
         self.arch_var = tk.StringVar(value="7-Series (Artix/Kintex)")
         ttk.Combobox(
@@ -272,14 +279,7 @@ class SEMHybridEngineApp:
             state="readonly",
         ).pack(side=tk.LEFT, padx=(5, 10))
 
-        # 2. IP Field
-        ttk.Label(param_f1, text="IP:", style="Card.TLabel").pack(side=tk.LEFT)
-        self.target_ip_var = tk.StringVar(value="design_1_i/c_addsub_0")
-        ttk.Entry(param_f1, textvariable=self.target_ip_var, width=15).pack(
-            side=tk.LEFT, padx=(5, 10)
-        )
-
-        # 3. Words Field
+        # Words Field
         ttk.Label(param_f1, text="Words:", style="Card.TLabel").pack(side=tk.LEFT)
         self.words_var = tk.StringVar(value="101")
         ttk.Combobox(
@@ -310,7 +310,7 @@ class SEMHybridEngineApp:
             side=tk.RIGHT, expand=True, fill=tk.X, padx=(5, 0)
         )
 
-        # --- 2. Hardware Connection ---
+        # --- Hardware Connection ---
         uart_frame = ttk.LabelFrame(
             left_frame, text="2. Hardware Connection", padding=15
         )
@@ -327,7 +327,6 @@ class SEMHybridEngineApp:
         )
         self._refresh_ports()
 
-        # NEW: New Line Dropdown
         self.nl_var = tk.StringVar(value="CRLF")
         ttk.Combobox(
             uart_top,
@@ -350,7 +349,7 @@ class SEMHybridEngineApp:
         )
         self.btn_connect.pack(fill=tk.X, pady=(15, 0))
 
-        # --- 3. Execution Engine ---
+        # --- Execution Engine ---
         camp_frame = ttk.LabelFrame(left_frame, text="3. Execution Engine", padding=15)
         camp_frame.pack(fill=tk.X, pady=(0, 5))
         self._set_card_bg(camp_frame)

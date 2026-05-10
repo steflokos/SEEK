@@ -15,7 +15,7 @@ def extract_targets(ll_path, ebd_path, target_ip, words, architecture):
             # Standard Xilinx payload lines are exactly 32 bits long.
             if re.fullmatch(r"[01]{16,}", clean_line):
                 ebd_bits.append(clean_line)
-    
+
     ebd_data = "".join(ebd_bits)
 
     # Extract FARs belonging to the Target IP
@@ -49,12 +49,12 @@ def extract_targets(ll_path, ebd_path, target_ip, words, architecture):
     targets = []
     for far, start_pos in far_to_abs.items():
         for bit_idx in range(words * 32):
-            
+
             # Shift the absolute position by the architecture pipeline offset
             abs_pos = start_pos + bit_idx + pipeline_offset_bits
-            
+
             if abs_pos < len(ebd_data) and ebd_data[abs_pos] == "1":
-                
+
                 # The PFA format logic remains the same across all three architectures
                 pfa_int = (
                     ((int(far, 16) & 0x3FFFFFF) << 12)
