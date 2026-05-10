@@ -13,8 +13,8 @@ class SEMHybridEngineApp:
     def __init__(self, root):
         self.root = root
         self.root.title("S.E.E.K. - Soft Error Exploration Kit")
-        self.root.geometry("1150x800")
-        self.root.minsize(1000, 700)
+        self.root.geometry("1920x1080")
+        self.root.minsize(1920, 1080)
 
         self.bg_main = "#1E2128"
         self.bg_card = "#282C34"
@@ -50,6 +50,8 @@ class SEMHybridEngineApp:
         success_hover = "#6FB26F"
         danger = "#CC5B60" 
         danger_hover = "#E06D72"
+        warning = "#D19A66"
+        warning_hover = "#E5A869"
         tertiary = "#4C99A0"  
         tertiary_hover = "#5EADB4"
         btn_bg = "#3A3F4B"
@@ -153,6 +155,23 @@ class SEMHybridEngineApp:
             background=tertiary,
             foreground="white",
             font=("Segoe UI", 10, "bold"),
+        )
+        style.map(
+            "Tertiary.TButton",
+            background=[("active", tertiary_hover)],
+            foreground=[("disabled", self.text_muted)],
+        )
+
+        style.configure(
+            "Warning.TButton",
+            background=warning,
+            foreground="white",
+            font=("Segoe UI", 10, "bold"),
+        )
+        style.map(
+            "Warning.TButton",
+            background=[("active", warning_hover)],
+            foreground=[("disabled", self.text_muted)],
         )
         style.map(
             "Tertiary.TButton",
@@ -401,21 +420,35 @@ class SEMHybridEngineApp:
 
         ttk.Separator(camp_frame, orient="horizontal").pack(fill=tk.X, pady=15)
 
+        # Discovery Engine Controls
+        disc_top = ttk.Frame(camp_frame, style="Card.TFrame")
+        disc_top.pack(fill=tk.X, pady=(0, 10))
+
         self.btn_disc = ttk.Button(
-            camp_frame,
-            text="Start Discovery Mode",
+            disc_top,
+            text="Start Discovery (Auto Scrubbing)",
             style="Tertiary.TButton",
             state=tk.DISABLED,
             command=self._start_discovery,
         )
-        self.btn_disc.pack(fill=tk.X, pady=(0, 10))
+        self.btn_disc.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0, 5))
+
+        # NEW: Stop Discovery Button
+        self.btn_disc_stop = ttk.Button(
+            disc_top,
+            text="Stop Discovery",
+            style="Abort.TButton",
+            state=tk.DISABLED,
+            command=self._stop_discovery,
+        )
+        self.btn_disc_stop.pack(side=tk.RIGHT, expand=True, fill=tk.X, padx=(5, 0))
 
         disc_ctrl = ttk.Frame(camp_frame, style="Card.TFrame")
         disc_ctrl.pack(fill=tk.X)
         self.btn_save = ttk.Button(
             disc_ctrl,
             text="Mark Broken (Save)",
-            style="Tertiary.TButton",
+            style="Warning.TButton",
             state=tk.DISABLED,
             command=self._disc_save,
         )
@@ -646,6 +679,7 @@ class SEMHybridEngineApp:
             self.btn_connect.config(text="Connect UART", style="Connect.TButton")
             self.btn_run.config(state=tk.DISABLED)
             self.btn_disc.config(state=tk.DISABLED)
+            self.btn_disc_stop.config(state=tk.DISABLED)
             self.log("\n[System] Disconnected.")
         else:
             try:
@@ -712,6 +746,9 @@ class SEMHybridEngineApp:
             targets, self.delay_var.get(), self.send_o_var.get(), self._get_endline()
         )
 
+    def _abort_campaign(self):
+        self.engine.abort()
+
     def _start_discovery(self):
         targets = self._get_targets_from_editor()
         if not targets:
@@ -719,11 +756,15 @@ class SEMHybridEngineApp:
 
         self.btn_run.config(state=tk.DISABLED)
         self.btn_disc.config(state=tk.DISABLED)
+        self.btn_disc_stop.config(state=tk.NORMAL)
         self.btn_save.config(state=tk.NORMAL)
         self.btn_skip.config(state=tk.NORMAL)
 
         # Passes selected endline to the engine
         self.engine.start_discovery(targets, self.delay_var.get(), self._get_endline())
+
+    def _stop_discovery(self):
+        self.engine.stop_discovery()
 
     def _update_progress(self, value):
         self.root.after(0, lambda: self.progress.configure(value=value))
@@ -733,6 +774,7 @@ class SEMHybridEngineApp:
             self.btn_run.config(state=tk.NORMAL)
             self.btn_disc.config(state=tk.NORMAL)
             self.btn_abort.config(state=tk.DISABLED)
+            self.btn_disc_stop.config(state=tk.DISABLED)
             self.btn_save.config(state=tk.DISABLED)
             self.btn_skip.config(state=tk.DISABLED)
 
@@ -743,6 +785,3 @@ class SEMHybridEngineApp:
 
     def _disc_skip(self):
         self.engine.skip_and_next()
-
-    def _abort_campaign(self):
-        self.engine.abort()
