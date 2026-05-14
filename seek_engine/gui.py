@@ -277,36 +277,49 @@ class SEMHybridEngineApp:
 
         map_frame.columnconfigure(1, weight=1)
 
+        # --- REORGANIZED PARAMETER GRID ---
         param_f1 = ttk.Frame(map_frame, style="Card.TFrame")
         param_f1.grid(row=2, column=0, columnspan=3, sticky="ew", pady=(10, 5))
 
-        # IP Field
-        ttk.Label(param_f1, text="IP:", style="Card.TLabel").pack(side=tk.LEFT)
-        self.target_ip_var = tk.StringVar(value="design_1_i/c_addsub_0")
-        ttk.Entry(param_f1, textvariable=self.target_ip_var, width=15).pack(
-            side=tk.LEFT, padx=(5, 10)
+        # Row 0
+        ttk.Label(param_f1, text="Arch:", style="Card.TLabel").grid(
+            row=0, column=0, padx=(5, 2), pady=2, sticky="w"
         )
-
-        # Architecture Field
-        ttk.Label(param_f1, text="Arch:", style="Card.TLabel").pack(side=tk.LEFT)
         self.arch_var = tk.StringVar(value="7-Series (Artix/Kintex)")
         ttk.Combobox(
             param_f1,
             textvariable=self.arch_var,
             values=["7-Series (Artix/Kintex)", "UltraScale", "UltraScale+"],
-            width=20,
+            width=18,
             state="readonly",
-        ).pack(side=tk.LEFT, padx=(5, 10))
+        ).grid(row=0, column=1, padx=(0, 10), pady=2, sticky="w")
+        self.arch_var.trace_add("write", self._on_arch_changed)
 
-        # Words Field
-        ttk.Label(param_f1, text="Words:", style="Card.TLabel").pack(side=tk.LEFT)
+        ttk.Label(param_f1, text="Words:", style="Card.TLabel").grid(
+            row=0, column=2, padx=(5, 2), pady=2, sticky="w"
+        )
         self.words_var = tk.StringVar(value="101")
         ttk.Combobox(
             param_f1, textvariable=self.words_var, values=["93", "101", "123"], width=4
-        ).pack(side=tk.LEFT, padx=5)
+        ).grid(row=0, column=3, padx=(0, 5), pady=2, sticky="w")
 
-        # Bind the trace so words change automatically when architecture changes
-        self.arch_var.trace_add("write", self._on_arch_changed)
+        # Row 1
+        ttk.Label(param_f1, text="IP:", style="Card.TLabel").grid(
+            row=1, column=0, padx=(5, 2), pady=2, sticky="w"
+        )
+        self.target_ip_var = tk.StringVar(value="design_1_i/c_addsub_0")
+        ttk.Entry(param_f1, textvariable=self.target_ip_var, width=15).grid(
+            row=1, column=1, padx=(0, 10), pady=2, sticky="ew"
+        )
+
+        # NEW: Neighbors Field
+        ttk.Label(param_f1, text="Neighbors ±:", style="Card.TLabel").grid(
+            row=1, column=2, padx=(5, 2), pady=2, sticky="w"
+        )
+        self.neighbors_var = tk.IntVar(value=0)
+        ttk.Spinbox(
+            param_f1, from_=0, to=10, textvariable=self.neighbors_var, width=4
+        ).grid(row=1, column=3, padx=(0, 5), pady=2, sticky="w")
 
         self.btn_map = ttk.Button(
             map_frame,
@@ -346,6 +359,7 @@ class SEMHybridEngineApp:
         )
         self._refresh_ports()
 
+        # New Line Dropdown
         self.nl_var = tk.StringVar(value="CRLF")
         ttk.Combobox(
             uart_top,
@@ -396,6 +410,7 @@ class SEMHybridEngineApp:
             style="Card.TCheckbutton",
         ).pack(anchor="w", pady=(0, 15))
 
+        # Batch Engine Controls
         batch_f = ttk.Frame(camp_frame, style="Card.TFrame")
         batch_f.pack(fill=tk.X, pady=(0, 10))
         self.btn_run = ttk.Button(
@@ -433,7 +448,6 @@ class SEMHybridEngineApp:
         )
         self.btn_disc.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0, 5))
 
-        # NEW: Stop Discovery Button
         self.btn_disc_stop = ttk.Button(
             disc_top,
             text="Stop Discovery",
@@ -713,6 +727,7 @@ class SEMHybridEngineApp:
                 self.target_ip_var.get(),
                 int(self.words_var.get()),
                 self.arch_var.get(),
+                int(self.neighbors_var.get()),  # <-- NEW PARAMETER PASSED HERE
             )
             self.root.after(0, lambda: self._on_mapping_complete(targets))
         except Exception as e:
@@ -723,7 +738,7 @@ class SEMHybridEngineApp:
         self._clear_editor()
         self.target_text.insert(
             tk.END,
-            f"# Extracted {len(targets)} targets for {self.target_ip_var.get()}\n",
+            f"# Extracted {len(targets)} targets for {self.target_ip_var.get()} (±{self.neighbors_var.get()} neighbors)\n",
         )
         self.target_text.insert(tk.END, "\n".join(targets))
         self._update_line_numbers()
